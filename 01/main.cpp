@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-struct lists {
+struct input_lists {
     std::vector<int> left;
     std::vector<int> right;
 };
 
-lists read_input() {
+input_lists read_input() {
     std::ifstream input{"input.txt"};
 
     if (!input) {
@@ -35,14 +35,13 @@ lists read_input() {
         right.push_back(std::stoi(line.substr(rightPos)));
     }
 
-    return {left, right};
+    assert(left.size() == right.size());
+    return { left, right };
 }
 
 int part1() {
-
     auto input = read_input();
-    // Sort the lists
-    assert(input.left.size() == input.right.size());
+
     std::ranges::sort(input.left);
     std::ranges::sort(input.right);
 
@@ -57,7 +56,6 @@ int part1() {
 
 int part2() {
     auto input = read_input();
-    assert(input.left.size() == input.right.size());
 
     std::map<int, int> right_freq;
     for (auto i : input.right) {
@@ -78,7 +76,6 @@ int part2() {
 }
 
 int main() {
-
     const int part1_result = part1();
     std::cout << "Part 1: " << part1_result << std::endl;
 
