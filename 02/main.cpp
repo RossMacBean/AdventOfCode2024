@@ -170,7 +170,7 @@ int part2_optimised(const std::vector<std::vector<int>>& reports) {
         const int start_index = std:: max(first_unsafe_level_index - 1, 0);
         const int end_index = std::min(first_unsafe_level_index + 2, static_cast<int>(reports.size() - 1));
 
-        for (int j = start_index; j < end_index; j++) {
+        for (int j = start_index; j <= end_index; j++) {
             if (is_report_safe_with_ignored_level(report, j)) {
                 safe_reports_count++;
                 break;
