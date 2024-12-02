@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <format>
 #include <fstream>
 #include <iostream>
@@ -58,7 +59,7 @@ bool compare_levels(const int a, const int b, const bool is_ascending) {
     return true;
 }
 
-int  find_first_unsafe_level_index(const std::vector<int>& levels) {
+int find_first_unsafe_level_index(const std::vector<int>& levels) {
     const bool is_ascending = levels[0] < levels[1];
     for (int i = 1; i < levels.size(); i++) {
         const int prev = levels[i - 1];
@@ -70,6 +71,46 @@ int  find_first_unsafe_level_index(const std::vector<int>& levels) {
     }
 
     return -1;
+}
+
+bool is_report_safe_with_ignored_level(const std::vector<int>& levels, const size_t ignored_index) {
+    size_t start_index = 0;
+    size_t end_index = levels.size() - 1;
+
+    if (ignored_index == 0) {
+        start_index = 1;
+    }
+
+    if (ignored_index == levels.size() - 1) {
+        end_index = end_index - 1;
+    }
+
+    assert(start_index < end_index);
+    assert(start_index < levels.size() - 1);
+
+    const bool is_ascending = levels[start_index] < levels[start_index + 1];
+    for (size_t i = start_index; i <= end_index; i++) {
+        // If the current element is the ignored one, then skip this iteration
+        if (i == ignored_index) {
+            continue;
+        }
+
+        size_t next_index = i + 1;
+        // If the next pointer is pointing to the ignored element, then skip over to the following one
+        if (next_index == ignored_index) {
+            next_index++;
+        }
+
+        if (next_index > end_index) {
+            break;
+        }
+
+        if (!compare_levels(levels[i], levels[next_index], is_ascending)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 int part1(std::vector<std::vector<int>>& reports) {
@@ -106,10 +147,7 @@ int part2(const std::vector<std::vector<int>>& reports) {
 
         // Disgusting brute force, "clever" solutions all ran in to an edge cases where the first element is the one that can be removed
         for (int j = 0; j < report.size(); j++) {
-            auto new_report = report;
-            new_report.erase(new_report.begin() + j);
-
-            if (find_first_unsafe_level_index(new_report) == -1) {
+            if (is_report_safe_with_ignored_level(report, j)) {
                 safe_reports_count++;
                 break;
             }
