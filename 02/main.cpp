@@ -118,6 +118,7 @@ int part1(std::vector<std::vector<int>>& reports) {
 
     for (const auto& report : reports) {
         if (report.size() < 2) {
+            safe_reports_count++;
             continue;
         }
 
@@ -129,7 +130,7 @@ int part1(std::vector<std::vector<int>>& reports) {
     return safe_reports_count;
 }
 
-int part2(const std::vector<std::vector<int>>& reports) {
+int part2_simple(const std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
     std::vector<std::vector<int>> unsafe_reports(reports.size());
 
@@ -145,8 +146,41 @@ int part2(const std::vector<std::vector<int>>& reports) {
             continue;
         }
 
-        // Disgusting brute force, "clever" solutions all ran in to an edge cases where the first element is the one that can be removed
+        // Brute force, try every combination of the report
         for (int j = 0; j < report.size(); j++) {
+            if (is_report_safe_with_ignored_level(report, j)) {
+                safe_reports_count++;
+                break;
+            }
+        }
+    }
+
+    return safe_reports_count;
+}
+
+int part2_optimised(const std::vector<std::vector<int>>& reports) {
+    int safe_reports_count = 0;
+    std::vector<std::vector<int>> unsafe_reports(reports.size());
+
+    for (const auto& report : reports) {
+        if (report.size() < 2) {
+            safe_reports_count++;
+            continue;
+        }
+
+        const auto first_unsafe_level_index = find_first_unsafe_level_index(report);
+        if (first_unsafe_level_index == -1) {
+            safe_reports_count++;
+            continue;
+        }
+
+        // Only need to check either size of the level pair that caused the failure
+        // Let 'a' be the index at which the first unsafe level was found and let 'b' be the level it was being compared to, which is the following element
+        // We need to check in the range [a-1, b+1] which is the same as [a-1, a+2]
+        const size_t start_index = std:: max(first_unsafe_level_index - 1, 0);
+        const size_t end_index = std::min(first_unsafe_level_index + 2, static_cast<int>(reports.size() - 1));
+
+        for (size_t j = start_index; j < end_index; j++) {
             if (is_report_safe_with_ignored_level(report, j)) {
                 safe_reports_count++;
                 break;
@@ -162,8 +196,11 @@ int main() {
     const int part1_result = part1(input);
     std::cout << "Part 1: " << part1_result << std::endl;
 
-    const int part2_result = part2(input);
-    std::cout << "Part 2: " << part2_result << std::endl;
+    int part2_result = part2_optimised(input);
+    std::cout << "Part 2 Simple: " << part2_result << std::endl;
+
+    part2_result = part2_optimised(input);
+    std::cout << "Part 2 Optimised: " << part2_result << std::endl;
 
     return 0;
 }
