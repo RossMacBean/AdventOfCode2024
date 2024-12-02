@@ -2,15 +2,8 @@
 #include <format>
 #include <fstream>
 #include <iostream>
-#include <numeric>
-#include <set>
 #include <string>
 #include <vector>
-
-struct report_check_result {
-    bool is_safe;
-
-};
 
 std::vector<std::vector<int>> read_input() {
     std::ifstream file{"input.txt"};
