@@ -92,8 +92,7 @@ int part2(const std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
     std::vector<std::vector<int>> unsafe_reports(reports.size());
 
-    for (int i = 0; i < reports.size(); i++) {
-        auto report = reports[i];
+    for (const auto& report : reports) {
         if (report.size() < 2) {
             safe_reports_count++;
             continue;
