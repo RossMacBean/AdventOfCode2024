@@ -61,21 +61,21 @@ bool compare_levels(const int a, const int b, const bool is_ascending) {
 
 int find_first_unsafe_level_index(const std::vector<int>& levels) {
     const bool is_ascending = levels[0] < levels[1];
-    for (int i = 1; i < levels.size(); i++) {
-        const int prev = levels[i - 1];
+    for (int i = 0; i < levels.size() - 1; i++) {
         const int curr = levels[i];
+        const int next = levels[i + 1];
 
-        if (!compare_levels(prev, curr, is_ascending)) {
-            return i - 1;
+        if (!compare_levels(curr, next, is_ascending)) {
+            return i;
         }
     }
 
     return -1;
 }
 
-bool is_report_safe_with_ignored_level(const std::vector<int>& levels, const size_t ignored_index) {
-    size_t start_index = 0;
-    size_t end_index = levels.size() - 1;
+bool is_report_safe_with_ignored_level(const std::vector<int>& levels, const int ignored_index) {
+    int start_index = 0;
+    int end_index = static_cast<int>(levels.size()) - 1;
 
     if (ignored_index == 0) {
         start_index = 1;
@@ -89,13 +89,13 @@ bool is_report_safe_with_ignored_level(const std::vector<int>& levels, const siz
     assert(start_index < levels.size() - 1);
 
     const bool is_ascending = levels[start_index] < levels[start_index + 1];
-    for (size_t i = start_index; i <= end_index; i++) {
+    for (int i = start_index; i <= end_index; i++) {
         // If the current element is the ignored one, then skip this iteration
         if (i == ignored_index) {
             continue;
         }
 
-        size_t next_index = i + 1;
+        int next_index = i + 1;
         // If the next pointer is pointing to the ignored element, then skip over to the following one
         if (next_index == ignored_index) {
             next_index++;
@@ -132,7 +132,6 @@ int part1(std::vector<std::vector<int>>& reports) {
 
 int part2_simple(const std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
-    std::vector<std::vector<int>> unsafe_reports(reports.size());
 
     for (const auto& report : reports) {
         if (report.size() < 2) {
@@ -163,7 +162,6 @@ int part2_simple(const std::vector<std::vector<int>>& reports) {
 
 int part2_optimised(const std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
-    std::vector<std::vector<int>> unsafe_reports(reports.size());
 
     for (const auto& report : reports) {
         if (report.size() < 2) {
@@ -180,10 +178,10 @@ int part2_optimised(const std::vector<std::vector<int>>& reports) {
         // Only need to check either size of the level pair that caused the failure
         // Let 'a' be the index at which the first unsafe level was found and let 'b' be the level it was being compared to, which is the following element
         // We need to check in the range [a-1, b+1] which is the same as [a-1, a+2]
-        const size_t start_index = std:: max(first_unsafe_level_index - 1, 0);
-        const size_t end_index = std::min(first_unsafe_level_index + 2, static_cast<int>(reports.size() - 1));
+        const int start_index = std:: max(first_unsafe_level_index - 1, 0);
+        const int end_index = std::min(first_unsafe_level_index + 2, static_cast<int>(reports.size() - 1));
 
-        for (size_t j = start_index; j < end_index; j++) {
+        for (int j = start_index; j < end_index; j++) {
             if (is_report_safe_with_ignored_level(report, j)) {
                 safe_reports_count++;
                 break;
