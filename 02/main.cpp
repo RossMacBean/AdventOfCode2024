@@ -148,7 +148,10 @@ int part2_simple(const std::vector<std::vector<int>>& reports) {
 
         // Brute force, try every combination of the report
         for (int j = 0; j < report.size(); j++) {
-            if (is_report_safe_with_ignored_level(report, j)) {
+            auto new_report = report;
+            new_report.erase(new_report.begin() + j);
+
+            if (find_first_unsafe_level_index(new_report) == -1) {
                 safe_reports_count++;
                 break;
             }
