@@ -60,6 +60,10 @@ bool compare_levels(const int a, const int b, const bool is_ascending) {
 }
 
 int find_first_unsafe_level_index(const std::vector<int>& levels) {
+    if (levels.size() < 2) {
+        return -1;
+    }
+
     const bool is_ascending = levels[0] < levels[1];
     for (int i = 0; i < levels.size() - 1; i++) {
         const int curr = levels[i];
@@ -117,11 +121,6 @@ int part1(std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
 
     for (const auto& report : reports) {
-        if (report.size() < 2) {
-            safe_reports_count++;
-            continue;
-        }
-
         if (find_first_unsafe_level_index(report) == -1) {
             safe_reports_count++;
         }
@@ -134,11 +133,6 @@ int part2_simple(const std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
 
     for (const auto& report : reports) {
-        if (report.size() < 2) {
-            safe_reports_count++;
-            continue;
-        }
-
         const auto first_unsafe_level_index = find_first_unsafe_level_index(report);
         if (first_unsafe_level_index == -1) {
             safe_reports_count++;
@@ -164,11 +158,6 @@ int part2_optimised(const std::vector<std::vector<int>>& reports) {
     int safe_reports_count = 0;
 
     for (const auto& report : reports) {
-        if (report.size() < 2) {
-            safe_reports_count++;
-            continue;
-        }
-
         const auto first_unsafe_level_index = find_first_unsafe_level_index(report);
         if (first_unsafe_level_index == -1) {
             safe_reports_count++;
