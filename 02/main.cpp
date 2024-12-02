@@ -92,7 +92,8 @@ bool is_report_safe_with_ignored_level(const std::vector<int>& levels, const int
     assert(start_index < end_index);
     assert(start_index < levels.size() - 1);
 
-    const bool is_ascending = levels[start_index] < levels[start_index + 1];
+    const int one_after_start_index = start_index + 1 == ignored_index ? start_index + 2 : start_index + 1;
+    const bool is_ascending = levels[start_index] < levels[one_after_start_index];
     for (int i = start_index; i <= end_index; i++) {
         // If the current element is the ignored one, then skip this iteration
         if (i == ignored_index) {
