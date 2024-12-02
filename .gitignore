@@ -108,3 +108,6 @@ fabric.properties
 *.exe
 *.out
 *.app
+
+# Advent of Code input
+**/input.txt
