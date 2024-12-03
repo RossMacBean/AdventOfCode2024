@@ -7,11 +7,6 @@
 #include <string>
 #include <vector>
 
-struct mul_instruction {
-    int left;
-    int right;
-};
-
 std::string read_input(const std::string &file_name) {
     std::ifstream file{file_name};
 
@@ -44,9 +39,16 @@ std::optional<int> parse_number(const std::string_view sv) {
     return result;
 }
 
-// This is crying out for a state machine and some proper encapsulation in an object
+
+struct mul_instruction {
+    int left;
+    int right;
+};
+
 const std::string mul_begin_token{"mul("};
 const std::string mul_end_token{")"};
+
+// This is crying out for a state machine and some proper encapsulation in an object
 std::vector<mul_instruction> parse_mul_instructions(const std::string_view input) {
     std::vector<mul_instruction> result;
 
@@ -82,8 +84,6 @@ std::vector<mul_instruction> parse_mul_instructions(const std::string_view input
     return result;
 }
 
-const std::string do_token{"do()"};
-const std::string dont_token{"don't()"};
 void print_instructions(const std::vector<mul_instruction>& instructions) {
     for (auto [left, right] : instructions) {
         std::cout << left << '*' << right << ' ';
@@ -104,6 +104,8 @@ int part1(const std::string_view input) {
     return total;
 }
 
+const std::string do_token{"do()"};
+const std::string dont_token{"don't()"};
 int part2(const std::string_view input) {
     int total = 0;
     bool enabled = true;
@@ -121,8 +123,8 @@ int part2(const std::string_view input) {
             const std::string_view enabled_instruction_sv = input.substr(start_pos, end_pos - start_pos);
             auto mul_instructions = parse_mul_instructions(enabled_instruction_sv);
             enabled_instructions.insert(enabled_instructions.end(), mul_instructions.begin(), mul_instructions.end());
-            enabled = false;
 
+            enabled = false;
             pos = end_pos + dont_token.size();
         } else {
             const auto do_pos = input.find(do_token, pos);
