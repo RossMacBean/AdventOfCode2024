@@ -70,12 +70,12 @@ int check_tile(
 }
 
 std::vector<std::pair<int, int>> directions_part1 {{1,0}, {0,1}, {1, 1}, {-1, 0}, {0, -1}, {-1, -1}, {1, -1}, {-1, 1} };
-int part1(const std::vector<std::vector<char>>& board, const std::string &word) {
+int part1(const std::vector<std::vector<char>>& board) {
     int total = 0;
 
     for (int y = 0; y < board.size(); y++) {
         for (int x = 0; x < board[y].size(); x++) {
-            total += check_tile(y, x, board, word, directions_part1);
+            total += check_tile(y, x, board, "XMAS", directions_part1);
         }
     }
 
@@ -129,7 +129,7 @@ int part2(const std::vector<std::vector<char>>& board) {
 int main() {
     const auto board = read_input("input.txt");
 
-    const int part1_result = part1(board, "XMAS");
+    const int part1_result = part1(board);
     std::cout << "Part 1: " << part1_result << std::endl;
 
     const auto part2_board = read_input("input.txt");
