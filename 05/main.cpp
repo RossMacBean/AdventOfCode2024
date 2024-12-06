@@ -57,13 +57,13 @@ input read_input(const std::string &filename) {
 bool test_rule(int32_t a, int32_t b, const std::vector<rule> &rules) {
     return std::ranges::find_if(rules, [&](const auto &rule) {
         return rule.after == a && rule.before == b;
-    }) != rules.end();
+    }) == rules.end();
 }
 
 std::optional<std::pair<int32_t, int32_t>> find_first_bad_update_pair(const std::vector<int32_t> &updates, const std::vector<rule> &rules) {
     for (int32_t updI = 0; updI < updates.size(); updI++) {
         for (int32_t otherI = updI + 1; otherI < updates.size(); otherI++) {
-            if (!test_rule(updates[otherI], updates[updI], rules)) {
+            if (!test_rule(updates[updI], updates[otherI], rules)) {
                 return { { updI, otherI } };
             }
         }
