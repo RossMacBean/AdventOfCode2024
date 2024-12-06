@@ -13,7 +13,10 @@ struct rule {
 };
 
 struct input {
+    // There is probably a much better way of structuring the rules than just a flat list of pairs. Every rule test
+    // requires iterating the entire vector.
     const std::vector<rule> rules;
+
     std::vector<std::vector<int32_t>> updates;
 };
 
@@ -121,13 +124,6 @@ int part2(const input& input) {
     return total;
 }
 
-/*
- * There is almost certainly a better way of solving this, but I've never done an algorithms course, so I don't know ;)
- * Probably something to do with constructing a graph of all the rules and then somehow using that to efficiently
- * figure out the correct order.
- *
- * As it stands, part 1 runs fine. Part 2 takes a long time but it works.
- */
 int main() {
     const auto input = read_input("input.txt");
 
