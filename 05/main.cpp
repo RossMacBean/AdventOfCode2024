@@ -54,7 +54,7 @@ input read_input(const std::string &filename) {
     return { std::move(rules), std::move(updates) };
 }
 
-bool test_rule(int32_t a, int32_t b, const std::vector<rule> &rules) {
+bool test_rule(const int32_t a, const int32_t b, const std::vector<rule> &rules) {
     return std::ranges::find_if(rules, [&](const auto &rule) {
         return rule.after == a && rule.before == b;
     }) == rules.end();
@@ -75,15 +75,19 @@ std::optional<std::pair<int32_t, int32_t>> find_first_bad_update_pair(const std:
 std::vector<int32_t> correct_update(const std::vector<int32_t> &update, const std::vector<rule> &rules) {
     std::vector result(update);
 
-    // oh look, a bubble sort!
-    auto bad_pair = find_first_bad_update_pair(result, rules);
-    while (bad_pair) {
-        const auto t = result[bad_pair->first];
-        result[bad_pair->first] = result[bad_pair->second];
-        result[bad_pair->second] = t;
+    std::ranges::sort(result, [&](const auto &a, const auto &b) {
+        return test_rule(a, b, rules);
+    });
 
-        bad_pair = find_first_bad_update_pair(result, rules);
-    }
+    // // oh look, a bubble sort!
+    // auto bad_pair = find_first_bad_update_pair(result, rules);
+    // while (bad_pair) {
+    //     const auto t = result[bad_pair->first];
+    //     result[bad_pair->first] = result[bad_pair->second];
+    //     result[bad_pair->second] = t;
+    //
+    //     bad_pair = find_first_bad_update_pair(result, rules);
+    // }
 
     return result;
 }
