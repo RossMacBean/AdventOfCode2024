@@ -17,7 +17,7 @@ struct input {
     // requires iterating the entire vector. Something like a map of int32->vector<int32> that could be used to quickly
     // jump to the rules you want to test
     const std::vector<rule> rules;
-    std::vector<std::vector<int32_t>> updates;
+    const std::vector<std::vector<int32_t>> updates;
 };
 
 input read_input(const std::string &filename) {
@@ -62,7 +62,6 @@ bool test_rule(const int32_t a, const int32_t b, const std::vector<rule> &rules)
         return rule.after == a && rule.before == b;
     }) == rules.end();
 }
-
 std::optional<std::pair<int32_t, int32_t>> find_first_bad_update_pair(const std::vector<int32_t> &updates, const std::vector<rule> &rules) {
     for (int32_t updI = 0; updI < updates.size(); updI++) {
         for (int32_t otherI = updI + 1; otherI < updates.size(); otherI++) {
@@ -95,7 +94,7 @@ std::vector<int32_t> correct_update(const std::vector<int32_t> &update, const st
     return result;
 }
 
-int part1(const input& input) {
+int part1(const input &input) {
     int32_t total = 0;
 
     for (auto &update : input.updates) {
@@ -108,7 +107,7 @@ int part1(const input& input) {
     return total;
 }
 
-int part2(const input& input) {
+int part2(const input &input) {
     int32_t total = 0;
 
     for (auto &update : input.updates) {
@@ -125,9 +124,8 @@ int part2(const input& input) {
 }
 
 int main() {
-    const auto input = read_input("input.txt");
-
-    const int part1_result = part1(input);
+    const auto part1_input = read_input("input.txt");
+    const int part1_result = part1(part1_input);
     std::cout << "Part 1: " << part1_result << std::endl;
 
     const auto part2_input = read_input("input.txt");
