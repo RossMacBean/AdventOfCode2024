@@ -14,9 +14,9 @@ struct rule {
 
 struct input {
     // There is probably a much better way of structuring the rules than just a flat list of pairs. Every rule test
-    // requires iterating the entire vector.
+    // requires iterating the entire vector. Something like a map of int32->vector<int32> that could be used to quickly
+    // jump to the rules you want to test
     const std::vector<rule> rules;
-
     std::vector<std::vector<int32_t>> updates;
 };
 
