@@ -30,12 +30,14 @@ struct Direction {
     int8_t row;
     int8_t col;
 };
+// NOTE:: the order of the directions matters here, it goes Up, Right, Down, Left.
+// This is used when checking for corners as each adjacent direction represents a corner
 std::array<Direction, 4> cardinal_directions = {{
     {-1, 0},
     {0, 1},
     {1, 0},
     {0, -1}
-    }};
+}};
 
 struct Region {
     char plant;
@@ -73,9 +75,9 @@ bool corner_check(
     const std::array<Direction, 2> &corner)
 {
     /* We have a corner if:
-     *      - Both adjacent cardinal points for this corner are either out of bounds, or are not the same plant as us
-     *      - If the above is not true, then if the adjacent cardinal points are the same plant as us, AND the point on the diagonal
-     *          of this corner is not the same plant as us, then we're an 'inner corner'
+     *  - Both adjacent cardinal points for this corner are either out of bounds, or are not the same plant as us
+     *  - If the above is not true, then if the adjacent cardinal points are the same plant as us, AND the point on the diagonal
+     *    of this corner is not the same plant as us, then we're an 'inner corner'
     */
 
     bool both_cardinals_are_different = true;
