@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -69,8 +68,8 @@ uint64_t run(std::vector<uint64_t> &input, int blink_count) {
 
     // Count the total number of stones
     uint64_t total = 0;
-    for (const auto values : std::ranges::views::values(stone_map)) {
-        total += values;
+    for (const auto val : std::ranges::views::values(stone_map)) {
+        total += val;
     }
 
     return total;
