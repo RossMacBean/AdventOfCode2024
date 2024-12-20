@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -16,8 +17,6 @@ struct World {
     int32_t rows;
     int32_t cols;
     std::vector<Robot> robots;
-
-    void tick();
 };
 
 Vector2 parse_vector2(const std::string &s) {
@@ -39,8 +38,8 @@ World read_input(const std::string &filename) {
         exit(1);
     }
 
-    int32_t rows, cols;
     std::vector<Robot> robots;
+    int32_t rows, cols;
     file >> cols >> rows;
 
     std::string line;
@@ -143,18 +142,33 @@ uint64_t part1(World &world) {
     return calculate_safety_factor(world, build_world_point_to_robot_count_map(world));
 }
 
-uint64_t part2(World &world) {
+// It just so happens that for my input that the first tick where no robot overlaps is the first tick where
+// the Christmas tree appears. I'm still not sure what the "correct" way of solving this puzzle is, this feels more like
+// exploiting how the puzzle was created (start with a tree and then mix it up backwards) and it happens that the grid
+// the designer started with has no overlaps? Is that part of the puzzle or did I just get lucky? I don't know. Very unsatisfying puzzle.
+// I tried a bunch of different things and this one just happened to work.
+void part2(World &world) {
     bool quit = false;
     int tick_count = 0;
-    int tick_limit = 10403; // lcm of the world size
 
-    std::cout << "enter a tick to go to: ";
-    std::cin >> tick_limit;
-
-    while (++tick_count < tick_limit) {
+    // Keep iterating until we find a position where no robots overlap
+    bool found = false;
+    while (!found) {
         tick(world);
+        tick_count++;
+
+        const std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map = build_world_point_to_robot_count_map(world);
+
+        found = true;
+        for (const auto count : std::views::values(world_point_to_robot_count_map)) {
+            if (count > 1) {
+                found = false;
+                break;
+            }
+        }
     }
 
+    std::cout << "Found a tick where no robots overlap" <<std::endl;
     while (!quit) {
         const std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map = build_world_point_to_robot_count_map(world);
         const auto grid = make_world_grid(world, world_point_to_robot_count_map);
@@ -169,8 +183,6 @@ uint64_t part2(World &world) {
             tick(world);
         }
     }
-
-    return 0;
 }
 
 int main() {
@@ -179,8 +191,7 @@ int main() {
     std::cout << "Part 1: " << part1_result << std::endl;
 
     auto part2_input = read_input("input.txt");
-    const size_t part2_result = part2(part2_input);
-    std::cout << "Part 2: " << part2_result << std::endl;
+    part2(part2_input);
 
     return 0;
 }

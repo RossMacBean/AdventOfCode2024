@@ -17,5 +17,4 @@ struct std::hash<Vector2> {
     }
 };
 
-
 #endif //VECTOR2_H
