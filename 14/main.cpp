@@ -19,7 +19,9 @@ struct World {
     std::vector<Robot> robots;
 };
 
-Vector2 parse_vector2(const std::string &s) {
+typedef std::vector<std::vector<int32_t>> Grid;
+
+Vector2 vector2_parse(const std::string &s) {
     const size_t eq_pos = s.find('=');
     const size_t comma_pos = s.find(',');
     const int32_t x = std::stoi(s.substr(eq_pos + 1, comma_pos - eq_pos));
@@ -46,8 +48,8 @@ World read_input(const std::string &filename) {
     std::getline(file, line); // Consume the rest of the first line
     while (std::getline(file, line)) {
         const size_t space_pos = line.find(' ');
-        Vector2 pos = parse_vector2(line.substr(0, space_pos));
-        Vector2 vel = parse_vector2(line.substr(space_pos + 1));
+        Vector2 pos = vector2_parse(line.substr(0, space_pos));
+        Vector2 vel = vector2_parse(line.substr(space_pos + 1));
 
         robots.emplace_back(pos, vel);
     }
@@ -55,7 +57,7 @@ World read_input(const std::string &filename) {
     return {rows, cols, std::move(robots)};
 }
 
-Vector2 add_vector_with_world_wrapping(const Vector2 a, const Vector2 b, const World &world) {
+Vector2 vector2_add_with_world_wrapping(const Vector2 a, const Vector2 b, const World &world) {
     int32_t x = (a.x + b.x) % world.cols;
     if (x < 0) {
         x += world.cols;
@@ -71,11 +73,11 @@ Vector2 add_vector_with_world_wrapping(const Vector2 a, const Vector2 b, const W
 
 void tick(World &world) {
     for (Robot &robot : world.robots) {
-        robot.position = add_vector_with_world_wrapping(robot.position, robot.velocity, world);
+        robot.position = vector2_add_with_world_wrapping(robot.position, robot.velocity, world);
     }
 }
 
-std::unordered_map<Vector2, int32_t> build_world_point_to_robot_count_map(const World &world) {
+std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map_create(const World &world) {
     std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map;
 
     for (const Robot &robot : world.robots) {
@@ -86,7 +88,7 @@ std::unordered_map<Vector2, int32_t> build_world_point_to_robot_count_map(const 
 }
 
 uint64_t calculate_safety_factor(const World &world, const std::unordered_map<Vector2, int32_t> &point_to_robot_count_map) {
-    std::array<int32_t, 4> quadrants = {};
+    std::array<int32_t, 4> quadrants{};
     const int32_t row_mid_point = world.rows / 2;
     const int32_t col_mid_point = world.cols / 2;
     for (const auto [pos, count] : point_to_robot_count_map) {
@@ -94,7 +96,7 @@ uint64_t calculate_safety_factor(const World &world, const std::unordered_map<Ve
             quadrants[0] += count;
         } else if (pos.x > col_mid_point && pos.y < row_mid_point) {
             quadrants[1] += count;
-        }else if (pos.x < col_mid_point && pos.y > row_mid_point) {
+        } else if (pos.x < col_mid_point && pos.y > row_mid_point) {
             quadrants[2] += count;
         } else if (pos.x > col_mid_point && pos.y > row_mid_point) {
             quadrants[3] += count;
@@ -104,7 +106,7 @@ uint64_t calculate_safety_factor(const World &world, const std::unordered_map<Ve
     return quadrants[0] * quadrants[1] * quadrants[2] * quadrants[3];
 }
 
-std::vector<std::vector<int32_t>> make_world_grid(const World &world, const std::unordered_map<Vector2, int32_t> &point_to_robot_count_map) {
+Grid world_grid_create(const World &world, const std::unordered_map<Vector2, int32_t> &point_to_robot_count_map) {
     std::vector grid(world.rows, std::vector<int32_t>(world.cols));
 
     for (int y = 0; y < world.rows; y++) {
@@ -118,7 +120,7 @@ std::vector<std::vector<int32_t>> make_world_grid(const World &world, const std:
     return grid;
 }
 
-void print_world_grid(const std::vector<std::vector<int32_t>> &grid) {
+void world_grid_print(const Grid &grid) {
     for (int y = 0; y < grid.size(); y++) {
         for (int x = 0; x < grid[0].size(); x++) {
             if (grid[y][x] == 0) {
@@ -139,7 +141,8 @@ uint64_t part1(World &world) {
         tick(world);
     }
 
-    return calculate_safety_factor(world, build_world_point_to_robot_count_map(world));
+    const auto map = world_point_to_robot_count_map_create(world);
+    return calculate_safety_factor(world, map);
 }
 
 // It just so happens that for my input that the first tick where no robot overlaps is the first tick where
@@ -157,7 +160,7 @@ void part2(World &world) {
         tick(world);
         tick_count++;
 
-        const std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map = build_world_point_to_robot_count_map(world);
+        const auto world_point_to_robot_count_map = world_point_to_robot_count_map_create(world);
 
         found = true;
         for (const auto count : std::views::values(world_point_to_robot_count_map)) {
@@ -170,10 +173,10 @@ void part2(World &world) {
 
     std::cout << "Found a tick where no robots overlap" <<std::endl;
     while (!quit) {
-        const std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map = build_world_point_to_robot_count_map(world);
-        const auto grid = make_world_grid(world, world_point_to_robot_count_map);
+        const auto world_point_to_robot_count_map = world_point_to_robot_count_map_create(world);
+        const auto grid = world_grid_create(world, world_point_to_robot_count_map);
         std::cout << "Tick: " << tick_count << std::endl;
-        print_world_grid(grid);
+        world_grid_print(grid);
 
         char key;
         std::cin >> key;
