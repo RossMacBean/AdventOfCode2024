@@ -59,12 +59,12 @@ World read_input(const std::string &filename) {
 Vector2 add_vector_with_world_wrapping(const Vector2 a, const Vector2 b, const World &world) {
     int32_t x = (a.x + b.x) % world.cols;
     if (x < 0) {
-        x = world.cols + x;
+        x += world.cols;
     }
 
     int32_t y = (a.y + b.y) % world.rows;
     if (y < 0) {
-        y = world.rows + y;
+        y += world.rows;
     }
 
     return {x, y};
@@ -105,15 +105,28 @@ uint64_t calculate_safety_factor(const World &world, const std::unordered_map<Ve
     return quadrants[0] * quadrants[1] * quadrants[2] * quadrants[3];
 }
 
-void print_world(const World &world, const std::unordered_map<Vector2, int32_t> &point_to_robot_count_map) {
+std::vector<std::vector<int32_t>> make_world_grid(const World &world, const std::unordered_map<Vector2, int32_t> &point_to_robot_count_map) {
+    std::vector grid(world.rows, std::vector<int32_t>(world.cols));
+
     for (int y = 0; y < world.rows; y++) {
         for (int x = 0; x < world.cols; x++) {
             if (point_to_robot_count_map.contains({x, y})) {
-                std::cout << point_to_robot_count_map.at({x, y});
-            } else {
-                std::cout << '.';
+                grid[y][x] += point_to_robot_count_map.at({x, y});
             }
-            std::cout << ' ';
+        }
+    }
+
+    return grid;
+}
+
+void print_world_grid(const std::vector<std::vector<int32_t>> &grid) {
+    for (int y = 0; y < grid.size(); y++) {
+        for (int x = 0; x < grid[0].size(); x++) {
+            if (grid[y][x] == 0) {
+                std::cout << '.';
+            } else {
+                std::cout << grid[y][x];
+            }
         }
         std::cout << std::endl;
     }
@@ -127,17 +140,37 @@ uint64_t part1(World &world) {
         tick(world);
     }
 
-    const std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map = build_world_point_to_robot_count_map(world);
-    //print_world(world, world_point_to_robot_count_map);
-
-    return calculate_safety_factor(world, world_point_to_robot_count_map);
+    return calculate_safety_factor(world, build_world_point_to_robot_count_map(world));
 }
 
-uint64_t part2(const World &world) {
-    uint64_t total = 0;
+uint64_t part2(World &world) {
+    bool quit = false;
+    int tick_count = 0;
+    int tick_limit = 10403; // lcm of the world size
 
+    std::cout << "enter a tick to go to: ";
+    std::cin >> tick_limit;
 
-    return total;
+    while (++tick_count < tick_limit) {
+        tick(world);
+    }
+
+    while (!quit) {
+        const std::unordered_map<Vector2, int32_t> world_point_to_robot_count_map = build_world_point_to_robot_count_map(world);
+        const auto grid = make_world_grid(world, world_point_to_robot_count_map);
+        std::cout << "Tick: " << tick_count << std::endl;
+        print_world_grid(grid);
+
+        char key;
+        std::cin >> key;
+        if (key == 'q') {
+            quit = true;
+        } else {
+            tick(world);
+        }
+    }
+
+    return 0;
 }
 
 int main() {
@@ -145,9 +178,9 @@ int main() {
     const size_t part1_result = part1(part1_input);
     std::cout << "Part 1: " << part1_result << std::endl;
 
-    // const auto part2_input = read_input("input.txt");
-    // const size_t part2_result = part2(part2_input);
-    // std::cout << "Part 2: " << part2_result << std::endl;
+    auto part2_input = read_input("input.txt");
+    const size_t part2_result = part2(part2_input);
+    std::cout << "Part 2: " << part2_result << std::endl;
 
     return 0;
 }
