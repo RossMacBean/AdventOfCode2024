@@ -7,6 +7,7 @@ struct Vector2 {
     int32_t x, y;
 
     bool operator==(const Vector2 &other) const;
+    Vector2 operator+(const Vector2 &other) const;
 };
 
 template <>
